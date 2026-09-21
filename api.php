@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://TU-DOMINIO.com');
+header('Access-Control-Allow-Origin: https://congresohela.com');
 header('Access-Control-Allow-Headers: Content-Type');
 
-const APP_SCRIPT_URL = 'PEGA_AQUI_LA_URL_DE_TU_WEB_APP';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD29sjjWWqFho8cZSd8CMmeMHMY0nx19_2mkDoIVMDqx4F4ktfJ27xerhoz7JyfpLM/exec';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
