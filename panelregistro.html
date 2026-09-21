@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<base target="_top">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Registro Hela 2027</title>
+	<style>
+		:root {
+			--ink: #071b3a;
+			--muted: #52627a;
+			--cream: #f2f6fb;
+			--paper: #ffffff;
+			--coral: #0b2d5c;
+			--coral-dark: #061a38;
+			--gold: #2f659f;
+			--line: #d5dfeb;
+			--shadow: 0 24px 70px rgba(61, 45, 25, 0.14);
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			color: var(--ink);
+			background:
+				radial-gradient(circle at 12% 10%, rgba(47, 101, 159, 0.14), transparent 24rem),
+				radial-gradient(circle at 92% 85%, rgba(7, 27, 58, 0.1), transparent 26rem),
+				var(--cream);
+			font-family: Georgia, 'Times New Roman', serif;
+		}
+
+		.page {
+			width: min(100% - 32px, 920px);
+			min-height: 100vh;
+			margin: 0 auto;
+			display: grid;
+			place-items: center;
+			padding: 48px 0;
+		}
+
+		.shell {
+			width: 100%;
+			overflow: hidden;
+			background: var(--paper);
+			border: 1px solid rgba(23, 33, 43, 0.08);
+			box-shadow: var(--shadow);
+			animation: panel-appear 700ms ease-out both;
+		}
+
+		.accent { height: 8px; background: linear-gradient(90deg, var(--coral-dark), var(--coral), var(--gold)); }
+
+		.content {
+			padding: clamp(32px, 7vw, 72px);
+			animation: content-appear 650ms 120ms ease-out both;
+		}
+
+		#welcome, #registration { text-align: center; }
+		#welcome .intro { margin-left: auto; margin-right: auto; }
+
+		@keyframes panel-appear {
+			from { opacity: 0; transform: translateY(22px) scale(0.98); }
+			to { opacity: 1; transform: translateY(0) scale(1); }
+		}
+
+		@keyframes content-appear {
+			from { opacity: 0; transform: translateY(12px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		.eyebrow {
+			margin: 0 0 14px;
+			color: var(--coral);
+			font-family: Arial, sans-serif;
+			font-size: 0.72rem;
+			font-weight: 700;
+			letter-spacing: 0.18em;
+			text-transform: uppercase;
+		}
+
+		h1, h2 { margin: 0 auto; font-weight: 400; line-height: 0.95; text-align: center; }
+		h1 { max-width: 620px; font-size: clamp(4rem, 12vw, 8rem); letter-spacing: -0.06em; }
+		h2 { font-size: clamp(2.4rem, 6vw, 4.2rem); letter-spacing: -0.045em; }
+
+		.intro { max-width: 500px; margin: 24px 0 34px; color: var(--muted); font-size: 1.08rem; line-height: 1.6; }
+
+		button {
+			border: 0;
+			cursor: pointer;
+			font: 700 0.8rem Arial, sans-serif;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.primary {
+			padding: 17px 25px;
+			color: #fff;
+			background: var(--coral);
+			transition: background 160ms ease, transform 160ms ease;
+		}
+
+		.primary:hover { background: var(--coral-dark); transform: translateY(-2px); }
+		.primary:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(47, 101, 159, 0.55); outline-offset: 3px; }
+
+		.hidden, [hidden] { display: none !important; }
+		.form-header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 38px; }
+		.back { padding: 8px 0; color: var(--coral); background: transparent; letter-spacing: 0.04em; }
+		.back:hover { text-decoration: underline; }
+
+		form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; max-width: 620px; margin: 0 auto; }
+		.field { display: grid; gap: 9px; }
+		.field.full { grid-column: 1 / -1; }
+		label { font: 700 0.75rem Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+		input, select {
+			width: 100%;
+			padding: 14px 0;
+			color: var(--ink);
+			background: transparent;
+			border: 0;
+			border-bottom: 1px solid var(--line);
+			border-radius: 0;
+			font: 1.05rem Georgia, 'Times New Roman', serif;
+			text-align: center;
+		}
+		input:focus, select:focus { border-color: var(--coral); outline: none; }
+		select { cursor: pointer; }
+		.form-actions { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 12px; }
+		.required-note { color: var(--muted); font: 0.8rem Arial, sans-serif; }
+		.status { grid-column: 1 / -1; margin: 0; color: var(--coral-dark); font: 0.95rem Arial, sans-serif; }
+		.status.error { color: #b33f3f; }
+		.status.success {
+			padding: 18px;
+			background: #f4f7fb;
+			border: 1px solid var(--line);
+		}
+		.cash-confirmation {
+			padding: 18px;
+			background: #f4f7fb;
+			border: 1px solid var(--line);
+		}
+		.cash-confirmation input { border: 1px solid var(--line); padding: 12px; background: var(--paper); }
+		.transfer-proof {
+			padding: 18px;
+			background: #f4f7fb;
+			border: 1px solid var(--line);
+		}
+		.transfer-proof input { border: 1px solid var(--line); padding: 12px; background: var(--paper); }
+
+		@media (prefers-reduced-motion: reduce) {
+			.shell, .content { animation: none; }
+		}
+
+		@media (max-width: 620px) {
+			.page { width: min(100% - 20px, 920px); padding: 20px 0; }
+			.content { padding: 36px 24px 42px; }
+			h1 { font-size: clamp(3.7rem, 20vw, 6rem); }
+			form { grid-template-columns: 1fr; gap: 20px; }
+			.field.full, .form-actions, .status { grid-column: auto; }
+			.form-header { align-items: start; flex-direction: column; margin-bottom: 28px; }
+			.form-actions { align-items: start; flex-direction: column; }
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<section class="shell" aria-live="polite">
+			<div class="accent"></div>
+
+			<div id="welcome" class="content">
+				<p class="eyebrow">Convocatoria abierta</p>
+				<h1>Hela 2027</h1>
+				<p class="intro">Forma parte de esta experiencia. Registra tus datos para reservar tu lugar.</p>
+				<button class="primary" type="button" id="startButton">Pasar al registro <span aria-hidden="true">&rarr;</span></button>
+			</div>
+
+			<div id="registration" class="content hidden">
+				<div class="form-header">
+					<div>
+						<p class="eyebrow">Hela 2027</p>
+						<h2>Tu registro</h2>
+					</div>
+					<button class="back" type="button" id="backButton">&larr; Regresar</button>
+				</div>
+
+				<form id="registrationForm">
+					<div class="field">
+						<label for="nombre">Nombre</label>
+						<input id="nombre" name="nombre" type="text" autocomplete="name" required>
+					</div>
+					<div class="field">
+						<label for="correo">Correo</label>
+						<input id="correo" name="correo" type="email" autocomplete="email" required>
+					</div>
+					<div class="field">
+						<label for="telefono">Teléfono</label>
+						<input id="telefono" name="telefono" type="tel" autocomplete="tel" required>
+					</div>
+					<div class="field">
+						<label for="escuela">Escuela</label>
+						<input id="escuela" name="escuela" type="text" autocomplete="organization" required>
+					</div>
+					<div class="field">
+						<label for="talla">Talla</label>
+						<select id="talla" name="talla" required>
+							<option value="" selected disabled>Selecciona una talla</option>
+							<option value="S">S</option>
+							<option value="M">M</option>
+							<option value="L">L</option>
+						</select>
+					</div>
+					<div class="field">
+						<label for="metodoPago">Método de pago</label>
+						<select id="metodoPago" name="metodoPago" required>
+							<option value="" selected disabled hidden>Selecciona un método</option>
+							<option value="Efectivo">Efectivo</option>
+							<option value="Transferencia">Transferencia</option>
+						</select>
+					</div>
+					<div id="cashConfirmation" class="field full cash-confirmation hidden" hidden>
+						<label for="confirmacionEfectivo">Confirmación del vendedor</label>
+						<input id="confirmacionEfectivo" name="confirmacionEfectivo" type="password" autocomplete="off" placeholder="Ingresa la contraseña de confirmación">
+					</div>
+					<div id="transferProof" class="field full transfer-proof hidden" hidden>
+						<label for="comprobanteTransferencia">Comprobante de transferencia</label>
+						<input id="comprobanteTransferencia" type="file" accept="image/*">
+					</div>
+					<div class="form-actions">
+						<button class="primary" type="submit">Enviar registro</button>
+						<span class="required-note">Todos los campos son obligatorios.</span>
+					</div>
+					<p id="status" class="status" role="status" hidden></p>
+				</form>
+			</div>
+		</section>
+	</main>
+
+	<script>
+		const API_ENDPOINT = '/api.php';
+		const welcome = document.getElementById('welcome');
+		const registration = document.getElementById('registration');
+		const form = document.getElementById('registrationForm');
+		const status = document.getElementById('status');
+		const metodoPago = document.getElementById('metodoPago');
+		const cashConfirmation = document.getElementById('cashConfirmation');
+		const confirmacionEfectivo = document.getElementById('confirmacionEfectivo');
+		const transferProof = document.getElementById('transferProof');
+		const comprobanteTransferencia = document.getElementById('comprobanteTransferencia');
+
+		function actualizarConfirmacionEfectivo() {
+			const esEfectivo = metodoPago.value === 'Efectivo';
+			cashConfirmation.hidden = !esEfectivo;
+			cashConfirmation.classList.toggle('hidden', !esEfectivo);
+			confirmacionEfectivo.required = esEfectivo;
+
+			if (!esEfectivo) {
+				confirmacionEfectivo.value = '';
+			}
+		}
+
+		metodoPago.addEventListener('change', actualizarConfirmacionEfectivo);
+
+		function actualizarComprobanteTransferencia() {
+			const esTransferencia = metodoPago.value === 'Transferencia';
+			transferProof.hidden = !esTransferencia;
+			transferProof.classList.toggle('hidden', !esTransferencia);
+			comprobanteTransferencia.required = esTransferencia;
+
+			if (!esTransferencia) {
+				comprobanteTransferencia.value = '';
+			}
+		}
+
+		metodoPago.addEventListener('change', actualizarComprobanteTransferencia);
+		metodoPago.value = '';
+		actualizarConfirmacionEfectivo();
+		actualizarComprobanteTransferencia();
+
+		document.getElementById('startButton').addEventListener('click', () => {
+			welcome.classList.add('hidden');
+			registration.classList.remove('hidden');
+			document.getElementById('nombre').focus();
+		});
+
+		document.getElementById('backButton').addEventListener('click', () => {
+			registration.classList.add('hidden');
+			welcome.classList.remove('hidden');
+		});
+
+		function enviarRegistro(datos, submitButton) {
+			const mostrarExito = () => {
+					status.textContent = datos.metodoPago === 'Transferencia'
+						? 'Tu registro esta completo, pero queda pendiente la verificacion de transferencia.'
+						: 'Se confirmo tu registro correctamente.';
+					form.reset();
+					actualizarConfirmacionEfectivo();
+					actualizarComprobanteTransferencia();
+					status.classList.add('success');
+					submitButton.textContent = 'Registro guardado';
+			};
+			const mostrarError = (error) => {
+					status.classList.add('error');
+					status.classList.remove('success');
+					status.textContent = 'No se pudo guardar el registro. Intenta nuevamente.';
+					submitButton.disabled = false;
+					submitButton.textContent = 'Enviar registro';
+					console.error(error);
+			};
+
+			if (window.google && google.script) {
+				google.script.run.withSuccessHandler(mostrarExito).withFailureHandler(mostrarError).registrarParticipante(datos);
+				return;
+			}
+
+			fetch(API_ENDPOINT, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ accion: 'registrar', datos: datos })
+			})
+				.then(respuesta => respuesta.json())
+				.then(resultado => resultado.error ? Promise.reject(new Error(resultado.error)) : mostrarExito())
+				.catch(mostrarError);
+		}
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			const submitButton = form.querySelector('button[type="submit"]');
+			submitButton.disabled = true;
+			submitButton.textContent = 'Guardando...';
+			status.hidden = false;
+			status.classList.remove('error');
+			status.classList.remove('success');
+			status.textContent = 'Guardando tu registro...';
+
+			const datos = Object.fromEntries(new FormData(form).entries());
+			const archivo = comprobanteTransferencia.files[0];
+
+			if (metodoPago.value === 'Transferencia' && archivo) {
+				const lector = new FileReader();
+				lector.onload = () => {
+					datos.comprobanteBase64 = lector.result;
+					datos.comprobanteNombre = archivo.name;
+					datos.comprobanteMimeType = archivo.type;
+					enviarRegistro(datos, submitButton);
+				};
+				lector.onerror = () => {
+					status.classList.add('error');
+					status.textContent = 'No se pudo leer el comprobante.';
+					submitButton.disabled = false;
+					submitButton.textContent = 'Enviar registro';
+				};
+				lector.readAsDataURL(archivo);
+				return;
+			}
+
+			enviarRegistro(datos, submitButton);
+		});
+	</script>
+</body>
+</html>
