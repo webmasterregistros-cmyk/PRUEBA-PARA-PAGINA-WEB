@@ -301,7 +301,9 @@
 			const mostrarError = (error) => {
 					status.classList.add('error');
 					status.classList.remove('success');
-					status.textContent = 'No se pudo guardar el registro. Intenta nuevamente.';
+					status.textContent = error && error.message
+						? error.message
+						: 'No se pudo guardar el registro. Intenta nuevamente.';
 					submitButton.disabled = false;
 					submitButton.textContent = 'Enviar registro';
 					console.error(error);
