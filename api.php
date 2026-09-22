@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: https://congresohela.com');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD29sjjWWqFho8cZSd8CMmeMHMY0nx19_2mkDoIVMDqx4F4ktfJ27xerhoz7JyfpLM/exec';

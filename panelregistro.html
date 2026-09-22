@@ -236,7 +236,7 @@
 	</main>
 
 	<script>
-		const API_ENDPOINT = '/api.php';
+		const API_ENDPOINT = 'https://congresohela.com/api.php';
 		const welcome = document.getElementById('welcome');
 		const registration = document.getElementById('registration');
 		const form = document.getElementById('registrationForm');
@@ -317,8 +317,16 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ accion: 'registrar', datos: datos })
 			})
-				.then(respuesta => respuesta.json())
-				.then(resultado => resultado.error ? Promise.reject(new Error(resultado.error)) : mostrarExito())
+				.then(async respuesta => {
+					const texto = await respuesta.text();
+					let resultado;
+					try { resultado = JSON.parse(texto); } catch (error) {
+						throw new Error('api.php no devolvio JSON. Revisa que exista en https://congresohela.com/api.php.');
+					}
+					if (!respuesta.ok || resultado.error) throw new Error(resultado.error || 'El servidor rechazo el registro.');
+					return resultado;
+				})
+				.then(() => mostrarExito())
 				.catch(mostrarError);
 		}
 
