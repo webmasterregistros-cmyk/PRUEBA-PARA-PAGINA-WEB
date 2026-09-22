@@ -1,5 +1,5 @@
 <?php
-const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycbwzlX5X_3ShNw8Fzn6hD3Hgu6Eix8c7CwGh7TU_AA_5L3SjbIsDv2eqnlKyiJLPL_mr/exec';
+const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycby-DrWvx_LPv0K80VAdxiG2wNmUVHEMt-91cyJdOtMsysjYmIEvK0iAmQapfZZqtrUG/exec';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
