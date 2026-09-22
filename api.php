@@ -1,10 +1,10 @@
 <?php
+const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycbwzlX5X_3ShNw8Fzn6hD3Hgu6Eix8c7CwGh7TU_AA_5L3SjbIsDv2eqnlKyiJLPL_mr/exec';
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: https://congresohela.com');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
-
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD29sjjWWqFho8cZSd8CMmeMHMY0nx19_2mkDoIVMDqx4F4ktfJ27xerhoz7JyfpLM/exec';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -18,7 +18,7 @@ if (!$payload) {
     exit;
 }
 
-$curl = curl_init(APP_SCRIPT_URL);
+$curl = curl_init(URL_APPSCRIPT);
 curl_setopt_array($curl, [
     CURLOPT_POST => true,
     CURLOPT_POSTFIELDS => $payload,
