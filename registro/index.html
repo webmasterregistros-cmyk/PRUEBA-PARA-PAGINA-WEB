@@ -236,7 +236,22 @@
 	</main>
 
 	<script>
-		const API_ENDPOINT = new URL('../api.php', window.location.href).href;
+		function resolveApiEndpoint() {
+			const pathname = window.location.pathname || '';
+			const host = window.location.hostname || '';
+
+			if (host === 'congresohela.com' || host.endsWith('github.io')) {
+				return 'https://congresohela.com/api.php';
+			}
+
+			if (pathname.includes('/githuwebmasterregistros/')) {
+				return 'https://congresohela.com/githuwebmasterregistros/api.php';
+			}
+
+			return new URL('../api.php', window.location.href).href;
+		}
+
+		const API_ENDPOINT = resolveApiEndpoint();
 		const welcome = document.getElementById('welcome');
 		const registration = document.getElementById('registration');
 		const form = document.getElementById('registrationForm');
