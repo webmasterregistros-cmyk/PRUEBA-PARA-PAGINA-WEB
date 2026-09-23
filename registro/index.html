@@ -236,9 +236,7 @@
 	</main>
 
 	<script>
-		const API_ENDPOINT = window.location.hostname === 'congresohela.com' || window.location.hostname === 'www.congresohela.com'
-			? '/api.php'
-			: 'https://congresohela.com/api.php';
+		const API_ENDPOINT = new URL('../api.php', window.location.href).href;
 		const welcome = document.getElementById('welcome');
 		const registration = document.getElementById('registration');
 		const form = document.getElementById('registrationForm');
