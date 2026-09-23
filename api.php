@@ -3,20 +3,9 @@
 const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycby-DrWvx_LPv0K80VAdxiG2wNmUVHEMt-91cyJdOtMsysjYmIEvK0iAmQapfZZqtrUG/exec';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
-
-$origen = $_SERVER['HTTP_ORIGIN'] ?? '';
-$origenesPermitidos = [
-    'https://congresohela.com',
-    'https://www.congresohela.com',
-    'https://webmasterregistros-cmyk.github.io'
-];
-
-if (in_array($origen, $origenesPermitidos, true)) {
-    header('Access-Control-Allow-Origin: ' . $origen);
-    header('Vary: Origin');
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
