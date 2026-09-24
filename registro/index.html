@@ -147,8 +147,81 @@
 		}
 		.transfer-proof input { border: 1px solid var(--line); padding: 12px; background: var(--paper); }
 
+		.success-overlay {
+			position: fixed;
+			inset: 0;
+			display: grid;
+			place-items: center;
+			background: rgba(7, 27, 58, 0.32);
+			backdrop-filter: blur(2px);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 240ms ease;
+			z-index: 20;
+		}
+		.success-overlay.visible {
+			opacity: 1;
+			pointer-events: auto;
+		}
+		.success-card {
+			width: min(90vw, 420px);
+			padding: 28px 24px 22px;
+			background: #ffffff;
+			border: 1px solid rgba(23, 33, 43, 0.08);
+			box-shadow: 0 24px 70px rgba(61, 45, 25, 0.18);
+			text-align: center;
+			transform: translateY(12px) scale(0.96);
+			transition: transform 260ms ease;
+		}
+		.success-overlay.visible .success-card {
+			transform: translateY(0) scale(1);
+		}
+		.success-badge {
+			width: 90px;
+			height: 90px;
+			margin: 0 auto 18px;
+			border-radius: 50%;
+			background: #eaf9ef;
+			display: grid;
+			place-items: center;
+			position: relative;
+			animation: pulseCheck 600ms ease-out;
+		}
+		.success-badge::before {
+			content: "";
+			width: 30px;
+			height: 16px;
+			border-left: 5px solid #1b8a48;
+			border-bottom: 5px solid #1b8a48;
+			transform: rotate(-45deg) scale(1.1);
+			display: block;
+			margin-top: -4px;
+		}
+		@keyframes pulseCheck {
+			0% { transform: scale(0.6); opacity: 0; }
+			60% { transform: scale(1.08); opacity: 1; }
+			100% { transform: scale(1); }
+		}
+		.success-card h3 {
+			margin: 0 0 10px;
+			font-size: clamp(2rem, 6vw, 2.6rem);
+			line-height: 1.1;
+		}
+		.success-card p {
+			margin: 0 0 22px;
+			color: var(--muted);
+			font: 1rem Arial, sans-serif;
+			line-height: 1.6;
+		}
+		.success-card .primary {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 220px;
+		}
+
 		@media (prefers-reduced-motion: reduce) {
-			.shell, .content { animation: none; }
+			.shell, .content, .success-overlay, .success-card, .success-badge { animation: none; transition: none; }
 		}
 
 		@media (max-width: 620px) {
@@ -235,6 +308,15 @@
 		</section>
 	</main>
 
+	<div id="successOverlay" class="success-overlay hidden" aria-live="polite" aria-hidden="true">
+		<div class="success-card" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+			<div class="success-badge" aria-hidden="true"></div>
+			<h3 id="successTitle">Registro completado</h3>
+			<p id="successText">Tu registro se ha guardado correctamente.</p>
+			<button id="reloadButton" class="primary" type="button">Registrar otro usuario</button>
+		</div>
+	</div>
+
 	<script>
 		const API_ENDPOINT = 'https://congresohela.com/githubwebmasterregistros/api.php';
 		console.log('API_ENDPOINT', API_ENDPOINT);
@@ -247,6 +329,9 @@
 		const confirmacionEfectivo = document.getElementById('confirmacionEfectivo');
 		const transferProof = document.getElementById('transferProof');
 		const comprobanteTransferencia = document.getElementById('comprobanteTransferencia');
+		const successOverlay = document.getElementById('successOverlay');
+		const successText = document.getElementById('successText');
+		const reloadButton = document.getElementById('reloadButton');
 
 		function actualizarConfirmacionEfectivo() {
 			const esEfectivo = metodoPago.value === 'Efectivo';
@@ -288,6 +373,17 @@
 			welcome.classList.remove('hidden');
 		});
 
+		function mostrarOverlayExito() {
+			successText.textContent = 'Tu registro se ha guardado correctamente.';
+			successOverlay.classList.remove('hidden');
+			successOverlay.classList.add('visible');
+			successOverlay.setAttribute('aria-hidden', 'false');
+		}
+
+		reloadButton.addEventListener('click', () => {
+			window.location.reload();
+		});
+
 		function enviarRegistro(datos, submitButton) {
 			const mostrarExito = () => {
 					status.textContent = datos.metodoPago === 'Transferencia'
@@ -298,6 +394,9 @@
 					actualizarComprobanteTransferencia();
 					status.classList.add('success');
 					submitButton.textContent = 'Registro guardado';
+					setTimeout(() => {
+						mostrarOverlayExito();
+					}, 400);
 			};
 			const mostrarError = (error) => {
 					status.classList.add('error');
@@ -336,15 +435,29 @@
 		form.addEventListener('submit', (event) => {
 			event.preventDefault();
 			const submitButton = form.querySelector('button[type="submit"]');
+			const datos = Object.fromEntries(new FormData(form).entries());
+			const archivo = comprobanteTransferencia.files[0];
+
+			if (metodoPago.value === 'Efectivo') {
+				const claveEfectivo = String(confirmacionEfectivo.value || '').trim();
+				if (claveEfectivo !== 'CONGRESO2027') {
+					status.hidden = false;
+					status.classList.add('error');
+					status.classList.remove('success');
+					status.textContent = 'La contraseña de efectivo es incorrecta. Inténtalo de nuevo.';
+					confirmacionEfectivo.focus();
+					submitButton.disabled = false;
+					submitButton.textContent = 'Enviar registro';
+					return;
+				}
+			}
+
 			submitButton.disabled = true;
 			submitButton.textContent = 'Guardando...';
 			status.hidden = false;
 			status.classList.remove('error');
 			status.classList.remove('success');
 			status.textContent = 'Guardando tu registro...';
-
-			const datos = Object.fromEntries(new FormData(form).entries());
-			const archivo = comprobanteTransferencia.files[0];
 
 			if (metodoPago.value === 'Transferencia' && archivo) {
 				const lector = new FileReader();
