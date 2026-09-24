@@ -1,4 +1,4 @@
-// api.php
+
 <?php
 const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycbyw4MfcQQyaAHosIfQ9kLxyHi-XxF5Ial57MVv7jKlS9QZrt5SIC_HGXRWEAw0InLbv/exec';
 
