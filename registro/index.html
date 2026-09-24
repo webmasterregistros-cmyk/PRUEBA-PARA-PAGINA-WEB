@@ -1,10 +1,13 @@
+<!--
+HTML DE TRANSFERENCIAS
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 	<base target="_top">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Registro Hela 2027</title>
+		<title>Registro Hela 2027 | Transferencia</title>
 	<style>
 		:root {
 			--ink: #071b3a;
@@ -242,16 +245,16 @@
 
 			<div id="welcome" class="content">
 				<p class="eyebrow">Convocatoria abierta</p>
-				<h1>Hela 2027</h1>
-				<p class="intro">Forma parte de esta experiencia. Registra tus datos para reservar tu lugar.</p>
+				<h1>Registro por transferencia</h1>
+				<p class="intro">Registra tus datos y adjunta tu comprobante de transferencia para reservar tu lugar.</p>
 				<button class="primary" type="button" id="startButton">Pasar al registro <span aria-hidden="true">&rarr;</span></button>
 			</div>
 
 			<div id="registration" class="content hidden">
 				<div class="form-header">
 					<div>
-						<p class="eyebrow">Hela 2027</p>
-						<h2>Tu registro</h2>
+						<p class="eyebrow">Hela 2027 | Transferencia</p>
+						<h2>Registro por transferencia</h2>
 					</div>
 					<button class="back" type="button" id="backButton">&larr; Regresar</button>
 				</div>
@@ -282,18 +285,7 @@
 							<option value="L">L</option>
 						</select>
 					</div>
-					<div class="field">
-						<label for="metodoPago">Método de pago</label>
-						<select id="metodoPago" name="metodoPago" required>
-							<option value="" selected disabled hidden>Selecciona un método</option>
-							<option value="Efectivo">Efectivo</option>
-							<option value="Transferencia">Transferencia</option>
-						</select>
-					</div>
-					<div id="cashConfirmation" class="field full cash-confirmation hidden" hidden>
-						<label for="confirmacionEfectivo">Confirmación del vendedor</label>
-						<input id="confirmacionEfectivo" name="confirmacionEfectivo" type="password" autocomplete="off" placeholder="Ingresa la contraseña de confirmación">
-					</div>
+					<input type="hidden" name="metodoPago" value="Transferencia">
 					<div id="transferProof" class="field full transfer-proof hidden" hidden>
 						<label for="comprobanteTransferencia">Comprobante de transferencia</label>
 						<input id="comprobanteTransferencia" type="file" accept="image/*">
@@ -324,42 +316,18 @@
 		const registration = document.getElementById('registration');
 		const form = document.getElementById('registrationForm');
 		const status = document.getElementById('status');
-		const metodoPago = document.getElementById('metodoPago');
-		const cashConfirmation = document.getElementById('cashConfirmation');
-		const confirmacionEfectivo = document.getElementById('confirmacionEfectivo');
 		const transferProof = document.getElementById('transferProof');
 		const comprobanteTransferencia = document.getElementById('comprobanteTransferencia');
 		const successOverlay = document.getElementById('successOverlay');
 		const successText = document.getElementById('successText');
 		const reloadButton = document.getElementById('reloadButton');
 
-		function actualizarConfirmacionEfectivo() {
-			const esEfectivo = metodoPago.value === 'Efectivo';
-			cashConfirmation.hidden = !esEfectivo;
-			cashConfirmation.classList.toggle('hidden', !esEfectivo);
-			confirmacionEfectivo.required = esEfectivo;
-
-			if (!esEfectivo) {
-				confirmacionEfectivo.value = '';
-			}
-		}
-
-		metodoPago.addEventListener('change', actualizarConfirmacionEfectivo);
-
 		function actualizarComprobanteTransferencia() {
-			const esTransferencia = metodoPago.value === 'Transferencia';
-			transferProof.hidden = !esTransferencia;
-			transferProof.classList.toggle('hidden', !esTransferencia);
-			comprobanteTransferencia.required = esTransferencia;
-
-			if (!esTransferencia) {
-				comprobanteTransferencia.value = '';
-			}
+			transferProof.hidden = false;
+			transferProof.classList.remove('hidden');
+			comprobanteTransferencia.required = true;
 		}
 
-		metodoPago.addEventListener('change', actualizarComprobanteTransferencia);
-		metodoPago.value = '';
-		actualizarConfirmacionEfectivo();
 		actualizarComprobanteTransferencia();
 
 		document.getElementById('startButton').addEventListener('click', () => {
@@ -390,7 +358,6 @@
 						? 'Tu registro esta completo, pero queda pendiente la verificacion de transferencia.'
 						: 'Se confirmo tu registro correctamente.';
 					form.reset();
-					actualizarConfirmacionEfectivo();
 					actualizarComprobanteTransferencia();
 					status.classList.add('success');
 					submitButton.textContent = 'Registro guardado';
@@ -438,20 +405,6 @@
 			const datos = Object.fromEntries(new FormData(form).entries());
 			const archivo = comprobanteTransferencia.files[0];
 
-			if (metodoPago.value === 'Efectivo') {
-				const claveEfectivo = String(confirmacionEfectivo.value || '').trim();
-				if (claveEfectivo !== 'CONGRESO2027') {
-					status.hidden = false;
-					status.classList.add('error');
-					status.classList.remove('success');
-					status.textContent = 'La contraseña de efectivo es incorrecta. Inténtalo de nuevo.';
-					confirmacionEfectivo.focus();
-					submitButton.disabled = false;
-					submitButton.textContent = 'Enviar registro';
-					return;
-				}
-			}
-
 			submitButton.disabled = true;
 			submitButton.textContent = 'Guardando...';
 			status.hidden = false;
@@ -459,7 +412,7 @@
 			status.classList.remove('success');
 			status.textContent = 'Guardando tu registro...';
 
-			if (metodoPago.value === 'Transferencia' && archivo) {
+			if (archivo) {
 				const lector = new FileReader();
 				lector.onload = () => {
 					datos.comprobanteBase64 = lector.result;
