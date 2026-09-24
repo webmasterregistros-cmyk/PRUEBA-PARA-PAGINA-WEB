@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Segundo pago | Hela 2027</title>
+	<style>
+		:root { --ink: #071b3a; --muted: #52627a; --paper: #fff; --cream: #f2f6fb; --accent: #0b2d5c; --line: #d5dfeb; }
+		* { box-sizing: border-box; }
+		body { margin: 0; min-height: 100vh; color: var(--ink); background: radial-gradient(circle at 12% 10%, rgba(47, 101, 159, .14), transparent 24rem), var(--cream); font-family: Georgia, 'Times New Roman', serif; }
+		.page { width: min(100% - 32px, 760px); min-height: 100vh; margin: auto; display: grid; place-items: center; padding: 40px 0; }
+		.shell { width: 100%; background: var(--paper); border: 1px solid rgba(23, 33, 43, .08); box-shadow: 0 24px 70px rgba(61, 45, 25, .14); }
+		.accent { height: 8px; background: linear-gradient(90deg, #061a38, var(--accent), #2f659f); }
+		.content { padding: clamp(32px, 7vw, 72px); text-align: center; }
+		.eyebrow { margin: 0 0 14px; color: var(--accent); font: 700 .72rem Arial, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+		h1 { margin: 0 auto 14px; font-size: clamp(2.8rem, 8vw, 5.5rem); font-weight: 400; line-height: .98; }
+		.intro { margin: 0 auto 34px; max-width: 540px; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
+		form { display: grid; gap: 20px; max-width: 560px; margin: auto; }
+		.field { display: grid; gap: 8px; }
+		label { font: 700 .75rem Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+		input { width: 100%; padding: 14px; color: var(--ink); background: transparent; border: 1px solid var(--line); font: 1.05rem Georgia, serif; text-align: center; }
+		button { border: 0; cursor: pointer; font: 700 .8rem Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+		.primary { padding: 17px 25px; color: #fff; background: var(--accent); }
+		.primary:disabled { cursor: wait; opacity: .6; }
+		.hidden { display: none !important; }
+		.status { min-height: 24px; margin: 0; font: .95rem Arial, sans-serif; }
+		.status.error { color: #b33f3f; }
+		.status.success { padding: 16px; color: #1b6c42; background: #eaf9ef; border: 1px solid #b9e1c7; }
+		#participant { margin: 0; color: var(--muted); font: 1rem Arial, sans-serif; }
+	</style>
+</head>
+<body>
+	<main class="page">
+		<section class="shell" aria-live="polite">
+			<div class="accent"></div>
+			<div class="content">
+				<p class="eyebrow">Hela 2027</p>
+				<h1>Segundo pago</h1>
+				<p class="intro">Ingresa tu folio para enviar el comprobante de tu pago restante.</p>
+				<form id="folioForm">
+					<div class="field"><label for="folio">Folio</label><input id="folio" type="text" placeholder="FOLIO-XXXXX" autocomplete="off" required></div>
+					<button id="searchButton" class="primary" type="submit">Consultar folio</button>
+				</form>
+				<div id="paymentFormContainer" class="hidden">
+					<p id="participant"></p>
+					<form id="proofForm">
+						<div class="field"><label for="secondProof">Segundo comprobante</label><input id="secondProof" type="file" accept="image/*" required></div>
+						<button id="sendButton" class="primary" type="submit">Enviar comprobante</button>
+					</form>
+				</div>
+				<p id="status" class="status" role="status"></p>
+			</div>
+		</section>
+	</main>
+	<script>
+		const API_ENDPOINT = 'https://congresohela.com/githubwebmasterregistros/api.php';
+		const folioForm = document.getElementById('folioForm');
+		const proofForm = document.getElementById('proofForm');
+		const folioInput = document.getElementById('folio');
+		const secondProof = document.getElementById('secondProof');
+		const status = document.getElementById('status');
+		const paymentFormContainer = document.getElementById('paymentFormContainer');
+		const participant = document.getElementById('participant');
+		let folioActual = '';
+
+		async function consultarFolio(event) {
+			event.preventDefault();
+			const button = document.getElementById('searchButton');
+			button.disabled = true;
+			status.className = 'status';
+			status.textContent = 'Consultando folio...';
+			paymentFormContainer.classList.add('hidden');
+			try {
+				const response = await fetch(API_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify({ accion: 'buscarTransferenciaPlazos', folio: folioInput.value }) });
+				const result = await response.json();
+				if (!response.ok || result.error) throw new Error(result.error || 'No se pudo consultar el folio.');
+				folioActual = result.folio;
+				participant.textContent = 'Registro encontrado para: ' + result.nombre;
+				paymentFormContainer.classList.remove('hidden');
+				status.textContent = 'Puedes enviar el segundo comprobante.';
+			} catch (error) {
+				status.className = 'status error';
+				status.textContent = error.message || 'No se pudo consultar el folio.';
+			} finally { button.disabled = false; }
+		}
+
+		proofForm.addEventListener('submit', (event) => {
+			event.preventDefault();
+			const file = secondProof.files[0];
+			const button = document.getElementById('sendButton');
+			if (!file || !folioActual) return;
+			button.disabled = true;
+			status.className = 'status';
+			status.textContent = 'Enviando comprobante...';
+			const reader = new FileReader();
+			reader.onload = async () => {
+				try {
+					const response = await fetch(API_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify({ accion: 'registrarSegundoComprobante', datos: { folio: folioActual, comprobanteBase64: reader.result, comprobanteNombre: file.name, comprobanteMimeType: file.type } }) });
+					const result = await response.json();
+					if (!response.ok || result.error) throw new Error(result.error || 'No se pudo guardar el comprobante.');
+					status.className = 'status success';
+					status.textContent = 'Segundo comprobante enviado correctamente. Queda pendiente de confirmación.';
+					proofForm.reset();
+				} catch (error) {
+					status.className = 'status error';
+					status.textContent = error.message || 'No se pudo guardar el comprobante.';
+				} finally { button.disabled = false; }
+			};
+			reader.onerror = () => { status.className = 'status error'; status.textContent = 'No se pudo leer la imagen.'; button.disabled = false; };
+			reader.readAsDataURL(file);
+		});
+		folioForm.addEventListener('submit', consultarFolio);
+	</script>
+</body>
+</html>

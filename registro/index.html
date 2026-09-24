@@ -285,6 +285,14 @@ HTML DE TRANSFERENCIAS
 							<option value="L">L</option>
 						</select>
 					</div>
+					<div class="field">
+						<label for="tipoPago">Modalidad de transferencia</label>
+						<select id="tipoPago" name="tipoPago" required>
+							<option value="" selected disabled>Selecciona una modalidad</option>
+							<option value="completo">Pago completo</option>
+							<option value="plazos">Pago a plazos</option>
+						</select>
+					</div>
 					<input type="hidden" name="metodoPago" value="Transferencia">
 					<div id="transferProof" class="field full transfer-proof hidden" hidden>
 						<label for="comprobanteTransferencia">Comprobante de transferencia</label>
