@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<base target="_top">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Registro a talleres | Congreso Hela 2027</title>
+	<style>
+		:root {
+			--ink: #172b3a;
+			--muted: #647681;
+			--paper: #fffefa;
+			--canvas: #f2f5f1;
+			--line: #d7dfd9;
+			--teal: #176b65;
+			--teal-dark: #104d49;
+			--gold: #c78a35;
+			--error: #a43c35;
+		}
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			min-height: 100vh;
+			color: var(--ink);
+			background-color: var(--canvas);
+			background-image: radial-gradient(#cbd6ce 0.7px, transparent 0.7px);
+			background-size: 18px 18px;
+			font-family: "Trebuchet MS", sans-serif;
+		}
+		main { width: min(100% - 32px, 680px); margin: 0 auto; padding: 44px 0; }
+		header { margin-bottom: 24px; }
+		.eyebrow { margin: 0 0 10px; color: var(--teal); font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+		h1 { margin: 0; font: 400 clamp(2.3rem, 8vw, 4rem)/.98 Georgia, serif; }
+		.rule { width: 64px; height: 4px; margin-top: 20px; background: var(--gold); }
+		.panel { padding: clamp(24px, 6vw, 42px); background: var(--paper); border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(23, 43, 58, .09); }
+		.panel[hidden], [hidden] { display: none !important; }
+		.step { display: flex; align-items: center; gap: 10px; margin: 0 0 24px; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+		.step-number { display: grid; width: 28px; aspect-ratio: 1; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--teal-dark); }
+		h2 { margin: 0 0 20px; font: 400 1.75rem/1.1 Georgia, serif; }
+		label.field-label { display: block; margin-bottom: 8px; font-size: .86rem; font-weight: 700; }
+		.search { display: flex; gap: 10px; }
+		input[type="text"] { min-width: 0; flex: 1; padding: 14px 15px; border: 1px solid #aebdb5; border-radius: 2px; color: var(--ink); background: #fff; font: 700 1rem "Trebuchet MS", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+		input:focus-visible, button:focus-visible, .workshop-option:focus-within { outline: 3px solid rgba(199, 138, 53, .45); outline-offset: 2px; }
+		button { min-height: 48px; padding: 12px 19px; border: 0; border-radius: 2px; color: #fff; background: var(--teal); cursor: pointer; font: 700 .92rem "Trebuchet MS", sans-serif; }
+		button:hover:not(:disabled) { background: var(--teal-dark); }
+		button:disabled { cursor: wait; opacity: .62; }
+		#claveRegistrada { margin: 0 0 20px; color: var(--muted); font-size: .9rem; }
+		.options { display: grid; gap: 10px; margin: 0 0 22px; }
+		.workshop-option { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 14px 16px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+		.workshop-option:has(input:checked) { border-color: var(--teal); background: #edf6f2; }
+		.workshop-option input { width: 18px; height: 18px; margin: 0; accent-color: var(--teal); }
+		.workshop-option.full { color: #65716d; background: #eef0ee; cursor: not-allowed; }
+		.workshop-option.full input { cursor: not-allowed; }
+		.workshop-option.full:has(input:checked) { border-color: var(--error); }
+		.workshop-info { min-width: 0; flex: 1; }
+		.workshop-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 700; }
+		.full-tag { color: var(--error); font-size: .72rem; letter-spacing: .08em; }
+		.capacity { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
+		.capacity-track { height: 7px; flex: 1; overflow: hidden; background: #e3e9e5; }
+		.capacity-fill { display: block; height: 100%; background: var(--teal); transition: width .25s ease; }
+		.workshop-option.full .capacity-fill { background: var(--error); }
+		.capacity-label { min-width: 74px; color: var(--muted); font-size: .78rem; text-align: right; white-space: nowrap; }
+		#recargar { margin-top: 14px; background: var(--ink); }
+		.message { margin: 18px 0 0; padding: 14px 16px; border-left: 4px solid var(--teal); color: var(--ink); background: #edf6f2; line-height: 1.45; }
+		.message.error { border-color: var(--error); background: #fbefed; }
+		.message strong { display: block; margin-top: 3px; }
+		@media (max-width: 520px) {
+			main { padding: 28px 0; }
+			.search { flex-direction: column; }
+			.search button { width: 100%; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<p class="eyebrow">Congreso Hela 2027</p>
+			<h1>Registro a talleres</h1>
+			<div class="rule" aria-hidden="true"></div>
+		</header>
+
+		<section id="panelClave" class="panel" aria-labelledby="tituloClave">
+			<p class="step"><span class="step-number">1</span> Validación de asistente</p>
+			<h2 id="tituloClave">Ingresa tu clave HELA</h2>
+			<form id="formularioClave" novalidate>
+				<label class="field-label" for="clave">Clave de registro</label>
+				<div class="search">
+					<input id="clave" name="clave" type="text" placeholder="HELA-XXXXX" autocomplete="off" maxlength="10" required>
+					<button id="buscar" type="submit">Continuar</button>
+				</div>
+			</form>
+			<p id="mensajeClave" class="message" role="status" aria-live="polite" hidden></p>
+		</section>
+
+		<section id="panelTaller" class="panel" aria-labelledby="tituloTaller" hidden>
+			<p class="step"><span class="step-number">2</span> Selección de taller</p>
+			<h2 id="tituloTaller">Elige un taller</h2>
+			<p id="claveRegistrada"></p>
+			<form id="formularioTaller">
+				<div id="opcionesTaller" class="options"></div>
+				<button id="registrar" type="submit" disabled>Confirmar registro</button>
+			</form>
+			<p id="mensajeTaller" class="message" role="status" aria-live="polite" hidden></p>
+			<button id="recargar" type="button" hidden>Recargar página</button>
+		</section>
+	</main>
+
+	<script>
+		const formularioClave = document.getElementById('formularioClave');
+		const formularioTaller = document.getElementById('formularioTaller');
+		const campoClave = document.getElementById('clave');
+		const botonBuscar = document.getElementById('buscar');
+		const botonRegistrar = document.getElementById('registrar');
+		const panelClave = document.getElementById('panelClave');
+		const panelTaller = document.getElementById('panelTaller');
+		const mensajeClave = document.getElementById('mensajeClave');
+		const mensajeTaller = document.getElementById('mensajeTaller');
+		const opcionesTaller = document.getElementById('opcionesTaller');
+		const botonRecargar = document.getElementById('recargar');
+		let registroActual = null;
+		let intervaloCupos = null;
+		let registroEnProceso = false;
+
+		function mostrarMensaje(elemento, texto, esError) {
+			elemento.textContent = texto;
+			elemento.classList.toggle('error', Boolean(esError));
+			elemento.hidden = false;
+		}
+
+		function mostrarTalleres(talleres) {
+			const seleccionAnterior = formularioTaller.querySelector('input[name="taller"]:checked');
+			const tallerSeleccionado = seleccionAnterior && seleccionAnterior.value;
+			let seleccionSeLleno = false;
+			opcionesTaller.replaceChildren();
+			talleres.forEach((taller) => {
+				const etiqueta = document.createElement('label');
+				etiqueta.className = 'workshop-option' + (taller.lleno ? ' full' : '');
+				const radio = document.createElement('input');
+				radio.type = 'radio';
+				radio.name = 'taller';
+				radio.value = taller.nombre;
+				radio.required = true;
+				radio.disabled = taller.lleno;
+				radio.checked = radio.value === tallerSeleccionado && !taller.lleno;
+				radio.addEventListener('change', () => {
+					botonRegistrar.disabled = false;
+					mensajeTaller.hidden = true;
+					botonRecargar.hidden = true;
+				});
+
+				const informacion = document.createElement('span');
+				informacion.className = 'workshop-info';
+				const titulo = document.createElement('span');
+				titulo.className = 'workshop-title';
+				const nombre = document.createElement('span');
+				nombre.textContent = taller.nombre;
+				titulo.appendChild(nombre);
+				if (taller.lleno) {
+					const lleno = document.createElement('span');
+					lleno.className = 'full-tag';
+					lleno.textContent = 'LLENO';
+					titulo.appendChild(lleno);
+				}
+
+				const capacidad = document.createElement('span');
+				capacidad.className = 'capacity';
+				capacidad.setAttribute('aria-label', taller.inscritos + ' de ' + taller.capacidad + ' cupos ocupados');
+				const barra = document.createElement('span');
+				barra.className = 'capacity-track';
+				barra.setAttribute('role', 'progressbar');
+				barra.setAttribute('aria-label', taller.nombre + ' cupos');
+				barra.setAttribute('aria-valuemin', '0');
+				barra.setAttribute('aria-valuemax', String(taller.capacidad));
+				barra.setAttribute('aria-valuenow', String(taller.inscritos));
+				const progreso = document.createElement('span');
+				progreso.className = 'capacity-fill';
+				progreso.style.width = Math.min(100, taller.inscritos / taller.capacidad * 100) + '%';
+				barra.appendChild(progreso);
+				const etiquetaCupo = document.createElement('span');
+				etiquetaCupo.className = 'capacity-label';
+				etiquetaCupo.textContent = taller.inscritos + '/' + taller.capacidad + ' cupos';
+				capacidad.append(barra, etiquetaCupo);
+				informacion.append(titulo, capacidad);
+				etiqueta.append(radio, informacion);
+				opcionesTaller.appendChild(etiqueta);
+				if (radio.value === tallerSeleccionado && taller.lleno) seleccionSeLleno = true;
+			});
+			const seleccionActual = formularioTaller.querySelector('input[name="taller"]:checked');
+			botonRegistrar.disabled = !seleccionActual || seleccionActual.disabled || registroEnProceso;
+			if (seleccionSeLleno) {
+				mostrarMensaje(mensajeTaller, 'Este taller se acaba de llenar. Recarga la página para actualizar los cupos y elegir otro taller.', true);
+				botonRecargar.hidden = false;
+			}
+		}
+
+		function iniciarActualizacionCupos() {
+			if (intervaloCupos) window.clearInterval(intervaloCupos);
+			intervaloCupos = window.setInterval(() => {
+				if (registroEnProceso || panelTaller.hidden) return;
+				google.script.run
+					.withSuccessHandler(mostrarTalleres)
+					.obtenerCuposTalleres();
+			}, 15000);
+		}
+
+		function detenerActualizacionCupos() {
+			if (intervaloCupos) window.clearInterval(intervaloCupos);
+			intervaloCupos = null;
+		}
+
+		function mostrarYaRegistrado(taller) {
+			detenerActualizacionCupos();
+			opcionesTaller.replaceChildren();
+			botonRegistrar.hidden = true;
+			mostrarMensaje(mensajeTaller, 'Ya estás registrado en un taller: ' + taller, false);
+		}
+
+		formularioClave.addEventListener('submit', (evento) => {
+			evento.preventDefault();
+			const clave = campoClave.value.trim().toUpperCase();
+			campoClave.value = clave;
+			mensajeClave.hidden = true;
+			if (!/^HELA-\d{5}$/.test(clave)) {
+				mostrarMensaje(mensajeClave, 'Escribe una clave con formato HELA-XXXXX.', true);
+				return;
+			}
+
+			botonBuscar.disabled = true;
+			botonBuscar.textContent = 'Buscando...';
+			google.script.run
+				.withSuccessHandler((registro) => {
+					botonBuscar.disabled = false;
+					botonBuscar.textContent = 'Continuar';
+					registroActual = registro;
+					document.getElementById('claveRegistrada').textContent = 'Clave: ' + registro.clave;
+					if (registro.tallerRegistrado) {
+						panelClave.hidden = true;
+						panelTaller.hidden = false;
+						mostrarYaRegistrado(registro.tallerRegistrado);
+						return;
+					}
+					mostrarTalleres(registro.talleres);
+					botonRegistrar.hidden = false;
+					mensajeTaller.hidden = true;
+					botonRecargar.hidden = true;
+					panelClave.hidden = true;
+					panelTaller.hidden = false;
+					iniciarActualizacionCupos();
+				})
+				.withFailureHandler((error) => {
+					botonBuscar.disabled = false;
+					botonBuscar.textContent = 'Continuar';
+					mostrarMensaje(mensajeClave, error.message || 'No se pudo validar la clave.', true);
+				})
+				.buscarInscripcionTaller(clave);
+		});
+
+		formularioTaller.addEventListener('submit', (evento) => {
+			evento.preventDefault();
+			const seleccion = formularioTaller.querySelector('input[name="taller"]:checked');
+			if (!seleccion || !registroActual) return;
+
+			botonRegistrar.disabled = true;
+			botonRegistrar.textContent = 'Registrando...';
+			registroEnProceso = true;
+			mensajeTaller.hidden = true;
+			google.script.run
+				.withSuccessHandler((resultado) => {
+					registroEnProceso = false;
+					detenerActualizacionCupos();
+					botonRegistrar.textContent = 'Confirmar registro';
+					if (resultado.yaRegistrado) {
+						mostrarYaRegistrado(resultado.tallerRegistrado);
+						return;
+					}
+					mostrarMensaje(mensajeTaller, 'Registro confirmado en ' + resultado.tallerRegistrado + ' (' + resultado.inscritos + '/' + resultado.capacidad + ' cupos).', false);
+					opcionesTaller.replaceChildren();
+					botonRegistrar.hidden = true;
+				})
+				.withFailureHandler((error) => {
+					registroEnProceso = false;
+					botonRegistrar.textContent = 'Confirmar registro';
+					const mensaje = error.message || 'No se pudo registrar el taller.';
+					mostrarMensaje(mensajeTaller, mensaje, true);
+					if (mensaje.toLowerCase().includes('se encuentra lleno')) {
+						botonRegistrar.disabled = true;
+						botonRecargar.hidden = false;
+						google.script.run
+							.withSuccessHandler(mostrarTalleres)
+							.obtenerCuposTalleres();
+					} else {
+						botonRegistrar.disabled = false;
+					}
+				})
+				.registrarInscripcionTaller(registroActual.clave, seleccion.value);
+		});
+
+		botonRecargar.addEventListener('click', () => window.location.reload());
+	</script>
+</body>
+</html>
