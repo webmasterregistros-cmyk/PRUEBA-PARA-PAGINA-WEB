@@ -33,11 +33,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Prepare HTML site
+        run: |
+          mkdir public
+          find . -path './.git' -prune -o -type f -name '*.html' -print0 | while IFS= read -r -d '' file; do
+            destination="public/${file#./}"
+            mkdir -p "$(dirname "$destination")"
+            cp "$file" "$destination"
+          done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: './public'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
