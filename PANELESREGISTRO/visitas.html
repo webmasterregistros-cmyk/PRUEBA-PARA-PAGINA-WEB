@@ -116,9 +116,43 @@
 		const mensajeVisita = document.getElementById('mensajeVisita');
 		const opcionesVisita = document.getElementById('opcionesVisita');
 		const botonRecargar = document.getElementById('recargar');
+		const URL_API_VISITAS = 'https://script.google.com/macros/s/AKfycbzwAv9eMGvVAW2OixLp9pwXjFbA__gZ87mZe3ay92Oa2czYT1ZFP2RcFf65wuVHwA6k/exec';
+		
 		let registroActual = null;
 		let intervaloCupos = null;
 		let registroEnProceso = false;
+
+		function llamarApiVisitas(accion, parametros) {
+			return new Promise((resolve, reject) => {
+				const callback = 'helaVisitas_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+				const script = document.createElement('script');
+				const query = new URLSearchParams({ api: 'visitas', accion: accion, callback: callback });
+				Object.entries(parametros || {}).forEach(([clave, valor]) => query.set(clave, valor));
+				let terminado = false;
+				const finalizar = (error, resultado) => {
+					if (terminado) return;
+					terminado = true;
+					window.clearTimeout(temporizador);
+					delete window[callback];
+					script.remove();
+					if (error) {
+						reject(error);
+					} else if (resultado && resultado.error) {
+						reject(new Error(resultado.error));
+					} else {
+						resolve(resultado);
+					}
+				};
+				window[callback] = (resultado) => finalizar(null, resultado);
+				script.onerror = () => finalizar(new Error('No se pudo conectar con el servicio de visitas.'));
+				const temporizador = window.setTimeout(
+					() => finalizar(new Error('El servicio de visitas tardó demasiado en responder.')),
+					20000
+				);
+				script.src = URL_API_VISITAS + '?' + query.toString();
+				document.head.appendChild(script);
+			});
+		}
 
 		function mostrarMensaje(elemento, texto, esError) {
 			elemento.textContent = texto;
@@ -197,9 +231,9 @@
 			if (intervaloCupos) window.clearInterval(intervaloCupos);
 			intervaloCupos = window.setInterval(() => {
 				if (registroEnProceso || panelVisita.hidden) return;
-				google.script.run
-					.withSuccessHandler(mostrarVisitas)
-					.obtenerCuposVisitas();
+				llamarApiVisitas('obtenerCuposVisitas')
+					.then(mostrarVisitas)
+					.catch((error) => mostrarMensaje(mensajeVisita, error.message, true));
 			}, 15000);
 		}
 
@@ -227,8 +261,8 @@
 
 			botonBuscar.disabled = true;
 			botonBuscar.textContent = 'Buscando...';
-			google.script.run
-				.withSuccessHandler((registro) => {
+			llamarApiVisitas('buscarInscripcionVisita', { clave: clave })
+				.then((registro) => {
 					botonBuscar.disabled = false;
 					botonBuscar.textContent = 'Continuar';
 					registroActual = registro;
@@ -247,12 +281,11 @@
 					panelVisita.hidden = false;
 					iniciarActualizacionCupos();
 				})
-				.withFailureHandler((error) => {
+				.catch((error) => {
 					botonBuscar.disabled = false;
 					botonBuscar.textContent = 'Continuar';
 					mostrarMensaje(mensajeClave, error.message || 'No se pudo validar la clave.', true);
-				})
-				.buscarInscripcionVisita(clave);
+				});
 		});
 
 		formularioVisita.addEventListener('submit', (evento) => {
@@ -264,8 +297,11 @@
 			botonRegistrar.textContent = 'Registrando...';
 			registroEnProceso = true;
 			mensajeVisita.hidden = true;
-			google.script.run
-				.withSuccessHandler((resultado) => {
+			llamarApiVisitas('registrarInscripcionVisita', {
+				clave: registroActual.clave,
+				visita: seleccion.value
+			})
+				.then((resultado) => {
 					registroEnProceso = false;
 					detenerActualizacionCupos();
 					botonRegistrar.textContent = 'Confirmar registro';
@@ -277,7 +313,7 @@
 					opcionesVisita.replaceChildren();
 					botonRegistrar.hidden = true;
 				})
-				.withFailureHandler((error) => {
+				.catch((error) => {
 					registroEnProceso = false;
 					botonRegistrar.textContent = 'Confirmar registro';
 					const mensaje = error.message || 'No se pudo registrar la visita.';
@@ -285,14 +321,13 @@
 					if (mensaje.toLowerCase().includes('se encuentra llena')) {
 						botonRegistrar.disabled = true;
 						botonRecargar.hidden = false;
-						google.script.run
-							.withSuccessHandler(mostrarVisitas)
-							.obtenerCuposVisitas();
+						llamarApiVisitas('obtenerCuposVisitas')
+							.then(mostrarVisitas)
+							.catch((actualizacionError) => mostrarMensaje(mensajeVisita, actualizacionError.message, true));
 					} else {
 						botonRegistrar.disabled = false;
 					}
-				})
-				.registrarInscripcionVisita(registroActual.clave, seleccion.value);
+				});
 		});
 
 		botonRecargar.addEventListener('click', () => window.location.reload());
