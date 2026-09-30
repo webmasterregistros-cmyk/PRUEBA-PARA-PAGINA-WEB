@@ -117,9 +117,43 @@
 		const mensajeTaller = document.getElementById('mensajeTaller');
 		const opcionesTaller = document.getElementById('opcionesTaller');
 		const botonRecargar = document.getElementById('recargar');
+		const URL_API_TALLERES = 'https://script.google.com/macros/s/AKfycbziWmecbfwSXtwszoopsfkGYW1Likpi_6ED4VLwjtZbhkeOlOWhPzr-k94QuLNucdBJ/exec';
+		
 		let registroActual = null;
 		let intervaloCupos = null;
 		let registroEnProceso = false;
+
+		function llamarApiTalleres(accion, parametros) {
+			return new Promise((resolve, reject) => {
+				const callback = 'helaTalleres_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+				const script = document.createElement('script');
+				const query = new URLSearchParams({ api: 'talleres', accion: accion, callback: callback });
+				Object.entries(parametros || {}).forEach(([clave, valor]) => query.set(clave, valor));
+				let terminado = false;
+				const finalizar = (error, resultado) => {
+					if (terminado) return;
+					terminado = true;
+					window.clearTimeout(temporizador);
+					delete window[callback];
+					script.remove();
+					if (error) {
+						reject(error);
+					} else if (resultado && resultado.error) {
+						reject(new Error(resultado.error));
+					} else {
+						resolve(resultado);
+					}
+				};
+				window[callback] = (resultado) => finalizar(null, resultado);
+				script.onerror = () => finalizar(new Error('No se pudo conectar con el servicio de talleres.'));
+				const temporizador = window.setTimeout(
+					() => finalizar(new Error('El servicio de talleres tardó demasiado en responder.')),
+					20000
+				);
+				script.src = URL_API_TALLERES + '?' + query.toString();
+				document.head.appendChild(script);
+			});
+		}
 
 		function mostrarMensaje(elemento, texto, esError) {
 			elemento.textContent = texto;
@@ -197,9 +231,9 @@
 			if (intervaloCupos) window.clearInterval(intervaloCupos);
 			intervaloCupos = window.setInterval(() => {
 				if (registroEnProceso || panelTaller.hidden) return;
-				google.script.run
-					.withSuccessHandler(mostrarTalleres)
-					.obtenerCuposTalleres();
+				llamarApiTalleres('obtenerCuposTalleres')
+					.then(mostrarTalleres)
+					.catch((error) => mostrarMensaje(mensajeTaller, error.message, true));
 			}, 15000);
 		}
 
@@ -227,8 +261,8 @@
 
 			botonBuscar.disabled = true;
 			botonBuscar.textContent = 'Buscando...';
-			google.script.run
-				.withSuccessHandler((registro) => {
+			llamarApiTalleres('buscarInscripcionTaller', { clave: clave })
+				.then((registro) => {
 					botonBuscar.disabled = false;
 					botonBuscar.textContent = 'Continuar';
 					registroActual = registro;
@@ -247,12 +281,11 @@
 					panelTaller.hidden = false;
 					iniciarActualizacionCupos();
 				})
-				.withFailureHandler((error) => {
+				.catch((error) => {
 					botonBuscar.disabled = false;
 					botonBuscar.textContent = 'Continuar';
 					mostrarMensaje(mensajeClave, error.message || 'No se pudo validar la clave.', true);
-				})
-				.buscarInscripcionTaller(clave);
+				});
 		});
 
 		formularioTaller.addEventListener('submit', (evento) => {
@@ -264,8 +297,11 @@
 			botonRegistrar.textContent = 'Registrando...';
 			registroEnProceso = true;
 			mensajeTaller.hidden = true;
-			google.script.run
-				.withSuccessHandler((resultado) => {
+			llamarApiTalleres('registrarInscripcionTaller', {
+				clave: registroActual.clave,
+				taller: seleccion.value
+			})
+				.then((resultado) => {
 					registroEnProceso = false;
 					detenerActualizacionCupos();
 					botonRegistrar.textContent = 'Confirmar registro';
@@ -277,7 +313,7 @@
 					opcionesTaller.replaceChildren();
 					botonRegistrar.hidden = true;
 				})
-				.withFailureHandler((error) => {
+				.catch((error) => {
 					registroEnProceso = false;
 					botonRegistrar.textContent = 'Confirmar registro';
 					const mensaje = error.message || 'No se pudo registrar el taller.';
@@ -285,14 +321,13 @@
 					if (mensaje.toLowerCase().includes('se encuentra lleno')) {
 						botonRegistrar.disabled = true;
 						botonRecargar.hidden = false;
-						google.script.run
-							.withSuccessHandler(mostrarTalleres)
-							.obtenerCuposTalleres();
+						llamarApiTalleres('obtenerCuposTalleres')
+							.then(mostrarTalleres)
+							.catch((actualizacionError) => mostrarMensaje(mensajeTaller, actualizacionError.message, true));
 					} else {
 						botonRegistrar.disabled = false;
 					}
-				})
-				.registrarInscripcionTaller(registroActual.clave, seleccion.value);
+				});
 		});
 
 		botonRecargar.addEventListener('click', () => window.location.reload());
