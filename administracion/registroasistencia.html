@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<base target="_top">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Verifica tu registro | Congreso Hela 2027</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--ink: #192d36;
+			--muted: #687b7d;
+			--paper: #fffefa;
+			--canvas: #f1f3ec;
+			--line: #d8dfd8;
+			--green: #176b57;
+			--green-dark: #105342;
+			--coral: #bf624c;
+			--error: #a23e36;
+		}
+		* { box-sizing: border-box; }
+		body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--canvas); font-family: "Trebuchet MS", Verdana, sans-serif; }
+		.page { width: min(100% - 32px, 1040px); margin: 0 auto; padding: 36px 0 56px; }
+		.masthead { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
+		.mark { display: grid; width: 42px; height: 42px; place-items: center; color: #fff; background: var(--green); font: 700 1.15rem Georgia, serif; }
+		.brand { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+		.brand span { display: block; margin-top: 4px; color: var(--muted); font-size: .68rem; font-weight: 500; }
+		.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr); border: 1px solid var(--line); background: var(--paper); }
+		.intro { padding: clamp(28px, 6vw, 64px); background: #e8efe8; border-right: 1px solid var(--line); }
+		.eyebrow { margin: 0 0 14px; color: var(--coral); font-size: .72rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+		h1 { max-width: 520px; margin: 0; font: 400 clamp(2.5rem, 5vw, 4.35rem) Georgia, serif; line-height: 1.02; }
+		.intro-copy { max-width: 390px; margin: 20px 0 0; color: var(--muted); font-size: .98rem; line-height: 1.65; }
+		.form-panel { padding: clamp(26px, 4vw, 44px); }
+		form { display: grid; gap: 18px; }
+		label { display: grid; gap: 8px; font-size: .82rem; font-weight: 700; }
+		input { width: 100%; min-height: 48px; padding: 12px 13px; color: var(--ink); border: 1px solid var(--line); border-radius: 3px; background: #fff; font: 1rem "Trebuchet MS", Verdana, sans-serif; }
+		input:focus { border-color: var(--green); outline: 3px solid rgba(23, 107, 87, .13); }
+		input:read-only { color: var(--muted); background: #f1f3ec; }
+		input#clave { text-transform: uppercase; }
+		button { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; padding: 12px 16px; border: 0; border-radius: 3px; color: #fff; background: var(--green); font: 700 .94rem "Trebuchet MS", Verdana, sans-serif; cursor: pointer; }
+		button:hover:not(:disabled) { background: var(--green-dark); }
+		button:disabled { cursor: wait; opacity: .65; }
+		button span { font-size: 1.3rem; line-height: 1; }
+		.text-button { min-height: 40px; justify-content: center; margin-top: 10px; color: var(--green); background: transparent; }
+		.text-button:hover:not(:disabled) { color: var(--green-dark); background: transparent; text-decoration: underline; }
+		.status { min-height: 24px; margin: 14px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.5; }
+		.status.error { color: var(--error); }
+		.result { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+		.result[hidden], .details[hidden] { display: none; }
+		.result-heading { display: flex; align-items: flex-start; gap: 11px; }
+		.result-icon { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; color: #fff; background: var(--green); border-radius: 50%; font-weight: 700; }
+		.result.not-found .result-icon { background: var(--coral); }
+		.result.pending .result-icon { background: #9a6a1d; }
+		.result h2 { margin: 2px 0 0; font: 400 1.45rem Georgia, serif; }
+		.result-message { margin: 10px 0 0 41px; color: var(--muted); font-size: .88rem; line-height: 1.55; }
+		.details { display: grid; gap: 0; margin: 20px 0 0 41px; }
+		.detail { display: grid; grid-template-columns: minmax(100px, .7fr) minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid #e8ece7; font-size: .85rem; }
+		.detail dt { color: var(--muted); }
+		.detail dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+		@media (max-width: 720px) {
+			.page { padding-top: 22px; }
+			.layout { grid-template-columns: 1fr; }
+			.intro { padding: 30px 26px; border-right: 0; border-bottom: 1px solid var(--line); }
+			h1 { max-width: 420px; font-size: clamp(2.45rem, 10vw, 3.5rem); }
+			.intro-copy { margin-top: 12px; }
+			.form-panel { padding: 26px; }
+		}
+		@media (prefers-reduced-motion: no-preference) {
+			.layout { animation: arrive .35s ease-out both; }
+			@keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<header class="masthead">
+			<div class="mark" aria-hidden="true">H</div>
+			<p class="brand">Congreso Hela 2027<span>Consulta de registro</span></p>
+		</header>
+		<div class="layout">
+			<section class="intro" aria-labelledby="title">
+				<p class="eyebrow">Consulta de participante</p>
+				<h1 id="title">Verifica tu registro.</h1>
+				<p class="intro-copy">Primero confirma el correo usado en tu registro. Si el pago está confirmado, te pediremos tu clave HELA para mostrar tus datos.</p>
+			</section>
+			<section class="form-panel" aria-label="Consulta de registro">
+				<form id="formularioCorreo" novalidate>
+					<label for="correo">Correo usado en el registro
+						<input id="correo" name="correo" type="email" placeholder="nombre@correo.com" autocomplete="email" required>
+					</label>
+					<button id="consultarCorreo" type="submit">Verificar correo <span aria-hidden="true">→</span></button>
+				</form>
+				<form id="formularioClave" novalidate hidden>
+					<label for="clave">Clave HELA
+						<input id="clave" name="clave" type="text" placeholder="HELA-12345" autocomplete="off" maxlength="10" required>
+					</label>
+					<button id="consultarClave" type="submit">Mostrar mis datos <span aria-hidden="true">→</span></button>
+				</form>
+				<button id="cambiarCorreo" class="text-button" type="button" hidden>Usar otro correo</button>
+				<p id="estado" class="status" role="status" aria-live="polite"></p>
+				<article id="resultado" class="result" aria-live="polite" hidden>
+					<div class="result-heading">
+						<span id="iconoResultado" class="result-icon" aria-hidden="true">✓</span>
+						<h2 id="tituloResultado"></h2>
+					</div>
+					<p id="mensajeResultado" class="result-message"></p>
+					<dl id="detalles" class="details" hidden>
+						<div class="detail"><dt>Nombre</dt><dd id="datoNombre"></dd></div>
+						<div class="detail"><dt>Clave HELA</dt><dd id="datoClave"></dd></div>
+						<div class="detail"><dt>Correo</dt><dd id="datoCorreo"></dd></div>
+						<div class="detail"><dt>Talla</dt><dd id="datoTalla"></dd></div>
+						<div class="detail"><dt>Pago</dt><dd id="datoPago"></dd></div>
+						<div class="detail"><dt>Taller</dt><dd id="datoTaller"></dd></div>
+						<div class="detail"><dt>Visita</dt><dd id="datoVisita"></dd></div>
+					</dl>
+				</article>
+			</section>
+		</div>
+	</main>
+	<script>
+		const formularioCorreo = document.getElementById('formularioCorreo');
+		const formularioClave = document.getElementById('formularioClave');
+		const cambiarCorreo = document.getElementById('cambiarCorreo');
+		const clave = document.getElementById('clave');
+		const correo = document.getElementById('correo');
+		const botonCorreo = document.getElementById('consultarCorreo');
+		const botonClave = document.getElementById('consultarClave');
+		const estado = document.getElementById('estado');
+		const resultado = document.getElementById('resultado');
+		const detalles = document.getElementById('detalles');
+		let consultaActual = 0;
+		let correoActual = '';
+
+		function iniciarConsulta(boton, textoOriginal) {
+			const consultaId = ++consultaActual;
+			boton.disabled = true;
+			boton.firstChild.textContent = 'Consultando... ';
+			estado.className = 'status';
+			estado.textContent = '';
+			const temporizador = window.setTimeout(() => {
+				if (consultaId !== consultaActual) return;
+				consultaActual++;
+				boton.disabled = false;
+				boton.firstChild.textContent = textoOriginal;
+				estado.className = 'status error';
+				estado.textContent = 'La consulta está tardando más de lo esperado. Intenta de nuevo en unos momentos.';
+			}, 30000);
+			return { id: consultaId, temporizador: temporizador };
+		}
+
+		function finalizarConsulta(consulta, boton, textoOriginal) {
+			if (consulta.id !== consultaActual) return false;
+			window.clearTimeout(consulta.temporizador);
+			boton.disabled = false;
+			boton.firstChild.textContent = textoOriginal;
+			return true;
+		}
+
+		function mostrarEstadoCorreo(respuesta) {
+			resultado.hidden = false;
+			resultado.classList.remove('not-found', 'pending');
+			formularioCorreo.hidden = false;
+			formularioClave.hidden = true;
+			cambiarCorreo.hidden = true;
+			detalles.hidden = true;
+
+			if (respuesta.estado === 'pago_plazos') {
+				resultado.classList.add('pending');
+				document.getElementById('iconoResultado').textContent = '!';
+				document.getElementById('tituloResultado').textContent = 'Tu registro está casi completo';
+				document.getElementById('mensajeResultado').textContent = 'El correo aparece en un registro de pago a plazos. Hace falta completar el otro pago para finalizar el registro.';
+				return;
+			}
+			if (respuesta.estado === 'comprobante_pendiente') {
+				resultado.classList.add('pending');
+				document.getElementById('iconoResultado').textContent = '!';
+				document.getElementById('tituloResultado').textContent = 'Tu registro sí existe';
+				document.getElementById('mensajeResultado').textContent = 'El comprobante de transferencia aún está pendiente de verificación. Podrás consultar tus datos con la clave HELA cuando se confirme.';
+				return;
+			}
+			if (respuesta.estado === 'pendiente_revision') {
+				resultado.classList.add('pending');
+				document.getElementById('iconoResultado').textContent = '!';
+				document.getElementById('tituloResultado').textContent = 'Tu registro está en revisión';
+				document.getElementById('mensajeResultado').textContent = 'El correo está asociado a un registro, pero aún no aparece como confirmado. Contacta al equipo del Congreso Hela para revisar el estado.';
+				return;
+			}
+			if (respuesta.estado !== 'confirmado') {
+				resultado.classList.add('not-found');
+				document.getElementById('iconoResultado').textContent = '!';
+				document.getElementById('tituloResultado').textContent = 'No encontramos ese correo';
+				document.getElementById('mensajeResultado').textContent = 'Revisa que sea el mismo correo que usaste al registrarte. Si es correcto, contacta al equipo del Congreso Hela.';
+				return;
+			}
+
+			correoActual = correo.value.trim();
+			correo.readOnly = true;
+			botonCorreo.hidden = true;
+			formularioClave.hidden = false;
+			cambiarCorreo.hidden = false;
+			document.getElementById('iconoResultado').textContent = '✓';
+			document.getElementById('tituloResultado').textContent = 'Correo encontrado y confirmado';
+			document.getElementById('mensajeResultado').textContent = 'Ingresa tu clave HELA para consultar los datos de tu registro.';
+			clave.focus();
+		}
+
+		function mostrarDatosRegistro(registro) {
+			resultado.hidden = false;
+			resultado.classList.remove('not-found', 'pending');
+			if (!registro.encontrado) {
+				resultado.classList.add('not-found');
+				document.getElementById('iconoResultado').textContent = '!';
+				document.getElementById('tituloResultado').textContent = 'No encontramos coincidencia';
+				document.getElementById('mensajeResultado').textContent = 'La clave no coincide con ese correo confirmado. Revisa los datos e intenta de nuevo.';
+				detalles.hidden = true;
+				return;
+			}
+
+			document.getElementById('iconoResultado').textContent = '✓';
+			document.getElementById('tituloResultado').textContent = 'Registro localizado';
+			document.getElementById('mensajeResultado').textContent = 'Estos son los datos asociados a tu registro.';
+			document.getElementById('datoNombre').textContent = registro.nombre || 'No disponible';
+			document.getElementById('datoClave').textContent = registro.clave;
+			document.getElementById('datoCorreo').textContent = registro.correo;
+			document.getElementById('datoTalla').textContent = registro.talla;
+			document.getElementById('datoPago').textContent = registro.estadoPago;
+			document.getElementById('datoTaller').textContent = registro.taller || 'Sin selección registrada';
+			document.getElementById('datoVisita').textContent = registro.visita || 'Sin selección registrada';
+			detalles.hidden = false;
+		}
+
+		formularioCorreo.addEventListener('submit', (evento) => {
+			evento.preventDefault();
+			const correoIngresado = correo.value.trim();
+			resultado.hidden = true;
+			if (!correo.validity.valid || !correoIngresado) {
+				estado.className = 'status error';
+				estado.textContent = 'Escribe el correo usado al registrarte.';
+				correo.focus();
+				return;
+			}
+			if (!window.google || !google.script || !google.script.run) {
+				estado.className = 'status error';
+				estado.textContent = 'Abre esta página desde el enlace del Congreso Hela para consultar el registro.';
+				return;
+			}
+
+			const consulta = iniciarConsulta(botonCorreo, 'Verificar correo ');
+			google.script.run
+				.withSuccessHandler((respuesta) => {
+					if (!finalizarConsulta(consulta, botonCorreo, 'Verificar correo ')) return;
+					estado.textContent = '';
+					mostrarEstadoCorreo(respuesta);
+				})
+				.withFailureHandler((error) => {
+					if (!finalizarConsulta(consulta, botonCorreo, 'Verificar correo ')) return;
+					estado.className = 'status error';
+					estado.textContent = error && error.message ? error.message : 'No se pudo consultar el registro. Intenta de nuevo.';
+				})
+				.consultarEstadoCorreo(correoIngresado);
+		});
+
+		formularioClave.addEventListener('submit', (evento) => {
+			evento.preventDefault();
+			const claveIngresada = clave.value.trim().toUpperCase();
+			if (!/^HELA-\d{5}$/.test(claveIngresada)) {
+				estado.className = 'status error';
+				estado.textContent = 'Escribe una clave con formato HELA-12345.';
+				clave.focus();
+				return;
+			}
+
+			const consulta = iniciarConsulta(botonClave, 'Mostrar mis datos ');
+			google.script.run
+				.withSuccessHandler((registro) => {
+					if (!finalizarConsulta(consulta, botonClave, 'Mostrar mis datos ')) return;
+					estado.textContent = '';
+					mostrarDatosRegistro(registro);
+				})
+				.withFailureHandler((error) => {
+					if (!finalizarConsulta(consulta, botonClave, 'Mostrar mis datos ')) return;
+					estado.className = 'status error';
+					estado.textContent = error && error.message ? error.message : 'No se pudieron consultar los datos. Intenta de nuevo.';
+				})
+				.obtenerDatosRegistroConfirmado(claveIngresada, correoActual);
+		});
+
+		cambiarCorreo.addEventListener('click', () => {
+			correoActual = '';
+			correo.readOnly = false;
+			botonCorreo.hidden = false;
+			clave.value = '';
+			formularioCorreo.hidden = false;
+			formularioClave.hidden = true;
+			cambiarCorreo.hidden = true;
+			resultado.hidden = true;
+			estado.className = 'status';
+			estado.textContent = '';
+			correo.focus();
+		});
+	</script>
+</body>
+</html>
