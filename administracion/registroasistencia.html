@@ -137,6 +137,7 @@
 		const detalles = document.getElementById('detalles');
 		const panelFormulario = document.querySelector('.form-panel');
 		const contenidoFormulario = document.getElementById('contenidoFormulario');
+		const API_ENDPOINT = 'https://congresohela.com/githubwebmasterregistros/api.php';
 		let consultaActual = 0;
 		let correoActual = '';
 
@@ -175,6 +176,27 @@
 			boton.disabled = false;
 			boton.firstChild.textContent = textoOriginal;
 			return true;
+		}
+
+		function consultarServidor(nombreFuncion, parametros, argumentos) {
+			if (window.google && google.script && google.script.run) {
+				return new Promise((resolve, reject) => {
+					const llamada = google.script.run
+						.withSuccessHandler(resolve)
+						.withFailureHandler(reject);
+					llamada[nombreFuncion](...argumentos);
+				});
+			}
+
+			return fetch(API_ENDPOINT, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ accion: nombreFuncion, ...parametros })
+			})
+				.then((respuesta) => respuesta.json().then((datos) => {
+					if (!respuesta.ok || datos.error) throw new Error(datos.error || 'No se pudo consultar el registro.');
+					return datos;
+				}));
 		}
 
 		function mostrarEstadoCorreo(respuesta) {
@@ -262,25 +284,18 @@
 				correo.focus();
 				return;
 			}
-			if (!window.google || !google.script || !google.script.run) {
-				estado.className = 'status error';
-				estado.textContent = 'Abre esta página desde el enlace del Congreso Hela para consultar el registro.';
-				return;
-			}
-
 			const consulta = iniciarConsulta(botonCorreo, 'Verificar correo ');
-			google.script.run
-				.withSuccessHandler((respuesta) => {
+			consultarServidor('consultarEstadoCorreo', { correo: correoIngresado }, [correoIngresado])
+				.then((respuesta) => {
 					if (!finalizarConsulta(consulta, botonCorreo, 'Verificar correo ')) return;
 					estado.textContent = '';
 					mostrarEstadoCorreo(respuesta);
 				})
-				.withFailureHandler((error) => {
+				.catch((error) => {
 					if (!finalizarConsulta(consulta, botonCorreo, 'Verificar correo ')) return;
 					estado.className = 'status error';
 					estado.textContent = error && error.message ? error.message : 'No se pudo consultar el registro. Intenta de nuevo.';
-				})
-				.consultarEstadoCorreo(correoIngresado);
+				});
 		});
 
 		formularioClave.addEventListener('submit', (evento) => {
@@ -294,18 +309,17 @@
 			}
 
 			const consulta = iniciarConsulta(botonClave, 'Mostrar mis datos ');
-			google.script.run
-				.withSuccessHandler((registro) => {
+			consultarServidor('obtenerDatosRegistroConfirmado', { clave: claveIngresada, correo: correoActual }, [claveIngresada, correoActual])
+				.then((registro) => {
 					if (!finalizarConsulta(consulta, botonClave, 'Mostrar mis datos ')) return;
 					estado.textContent = '';
 					mostrarDatosRegistro(registro);
 				})
-				.withFailureHandler((error) => {
+				.catch((error) => {
 					if (!finalizarConsulta(consulta, botonClave, 'Mostrar mis datos ')) return;
 					estado.className = 'status error';
 					estado.textContent = error && error.message ? error.message : 'No se pudieron consultar los datos. Intenta de nuevo.';
-				})
-				.obtenerDatosRegistroConfirmado(claveIngresada, correoActual);
+				});
 		});
 
 		cambiarCorreo.addEventListener('click', () => {

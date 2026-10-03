@@ -1,6 +1,6 @@
 
 <?php
-const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycbxjzgC_Ve4kOubOuGr6o09Pl47w68-di3Y1iY-qD117vWuvw3ziUShU7ZtmQc5NYqMQ/exec';
+const URL_APPSCRIPT = 'https://script.google.com/macros/s/AKfycbxFulDR1uWOda_Fs-hnTrlJOfCGZapzIfFDWNUr6WPws1nqnO0-9QETAGKPShbiwE2c/exec';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
